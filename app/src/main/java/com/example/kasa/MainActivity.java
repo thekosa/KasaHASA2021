@@ -14,17 +14,18 @@ import android.nfc.NdefRecord;
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
 import android.nfc.tech.Ndef;
-import android.nfc.tech.NfcA;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,45 +35,46 @@ public class MainActivity extends AppCompatActivity {
 
     private NfcAdapter nfcAdapter;
     private PendingIntent pendingIntent;
-    private IntentFilter writingTagFilters[];
+    private IntentFilter[] writingTagFilters;
     private boolean writeMode;
     private Tag myTag;
     private Context context;
-    private TextView edit_message;
     private TextView nfc_content;
-    private TextView money;
+    private TextView balance;
+    private EditText amount;
     private Button ActivateButton;
+    private Switch switchAction;
+
+    private String[] cardStringSplited;
+
 
     @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        edit_message = (TextView) findViewById(R.id.edit_message);
-        nfc_content = (TextView) findViewById(R.id.nfc_content);
-        money = (TextView) findViewById(R.id.money);
-        ActivateButton = (Button) findViewById(R.id.ActivateButton);
+
+        init();
         context = this;
 
-        ActivateButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    if (myTag == null) {
-                        Toast.makeText(context, Error_Detected, Toast.LENGTH_LONG).show();
-                    } else {
-                        write("PlainText|" + edit_message.getText().toString(), myTag);
-                        Toast.makeText(context, Write_Succes, Toast.LENGTH_LONG).show();
-                    }
-                } catch (IOException e) {
-                    Toast.makeText(context, Write_Error, Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                } catch (FormatException e) {
-                    Toast.makeText(context, Write_Error, Toast.LENGTH_LONG).show();
-                    e.printStackTrace();
-                }
-            }
+        ActivateButton.setOnClickListener(v -> {
+            try {
+                if (myTag == null) {
+                    Toast.makeText(context, Error_Detected, Toast.LENGTH_LONG).show();
+                } else {
+//tutaj tego if ze switcha dać, zastanowić się czy by nie wziąć radiobuttona, bo ten switch to jakiś dziwny
 
+                    //wersja dla dodawania
+
+                    int newNumb = Integer.parseInt(cardStringSplited[1]) + Integer.parseInt(String.valueOf(amount.getText()));
+
+                    write(cardStringSplited[0] + ":" + newNumb, myTag);
+                    Toast.makeText(context, Write_Succes, Toast.LENGTH_LONG).show();
+                }
+            } catch (IOException | FormatException e) {
+                Toast.makeText(context, Write_Error, Toast.LENGTH_LONG).show();
+                e.printStackTrace();
+            }
         });
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter == null) {
@@ -104,13 +106,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void buildTagViews(NdefMessage[] msgs) {
-        if (msgs == null || msgs.length == 0) return;
-
-        String text = "";
+        if (msgs == null || msgs.length == 0) {
+            return;
+        }
 
         byte[] payload = msgs[0].getRecords()[0].getPayload();
         String textEncoding = ((payload[0] & 128) == 0) ? "UTF-8" : "UTF-16";
         int languageCodeLength = payload[0] & 0063;
+        String text = "";
 
         try {
             text = new String(payload, languageCodeLength + 1, payload.length - languageCodeLength - 1, textEncoding);
@@ -118,7 +121,10 @@ public class MainActivity extends AppCompatActivity {
             Log.e("UnsupportedEncoding", e.toString());
         }
 
-        nfc_content.setText("Dane: " + text);
+        cardStringSplited = text.split(":");
+
+        nfc_content.setText(text);
+        balance.setText(cardStringSplited[1]);
     }
 
     private void write(String text, Tag tag) throws IOException, FormatException {
@@ -134,7 +140,7 @@ public class MainActivity extends AppCompatActivity {
     private NdefRecord createRecord(String text) throws UnsupportedEncodingException {
         String lang = "en";
         byte[] textBytes = text.getBytes();
-        byte[] langBytes = lang.getBytes("US-ASCII");
+        byte[] langBytes = lang.getBytes(StandardCharsets.US_ASCII);
         int langLength = langBytes.length;
         int textLength = textBytes.length;
         byte[] payload = new byte[1 + langLength + textLength];
@@ -157,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     @Override
     public void onPause() {
         super.onPause();
@@ -179,5 +184,14 @@ public class MainActivity extends AppCompatActivity {
     private void WriteModeOff() {
         writeMode = false;
         nfcAdapter.disableForegroundDispatch(this);
+    }
+
+
+    private void init() {
+        balance = findViewById(R.id.balance);
+        nfc_content = findViewById(R.id.nfc_content);
+        amount = findViewById(R.id.amount);
+        ActivateButton = findViewById(R.id.ActivateButton);
+        switchAction = findViewById(R.id.switch_action);
     }
 }
