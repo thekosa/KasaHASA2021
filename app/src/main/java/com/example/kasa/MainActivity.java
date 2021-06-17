@@ -51,13 +51,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView nfc_content;
     private TextView balance;
     private EditText amount;
-    private Button ActivateButton;
 
     private Switch switchAction;
     private RadioButton add, sub;
 
     private TextView listaLogowLabel;
-    private Button wyswietlListeLogow;
     private String fileName = "LogFile.txt";
     private File logFile;
 
@@ -97,7 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             wykonajAkcjeNaKarcie();
         }
         if (v.getId() == R.id.logView) {
-            wyświetlListeLogow();
+            wyswietlListeLogow();
         }
     }
 
@@ -140,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         out.close();
     }
 
-    private void wyświetlListeLogow() {
+    private void wyswietlListeLogow() {
         List<String> logsList;
         logsList = getFromFileToList();
         if (logsList.isEmpty()) {
@@ -270,12 +268,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         balance = findViewById(R.id.balance);
         nfc_content = findViewById(R.id.nfc_content);
         amount = findViewById(R.id.amount);
-        ActivateButton = findViewById(R.id.ActivateButton);
         switchAction = findViewById(R.id.switch_action);
         add = findViewById(R.id.add);
         sub = findViewById(R.id.sub);
         listaLogowLabel = findViewById(R.id.logList);
-        wyswietlListeLogow = findViewById(R.id.logView);
 
         logFile = new File(fileName);
         logFile.createNewFile();
