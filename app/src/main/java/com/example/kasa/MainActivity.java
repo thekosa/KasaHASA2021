@@ -17,17 +17,26 @@ import android.nfc.tech.Ndef;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String Error_Detected = "Błąd aplikacji!";
     public static final String Write_Succes = "Zapis pomyślny";
@@ -43,7 +52,14 @@ public class MainActivity extends AppCompatActivity {
     private TextView balance;
     private EditText amount;
     private Button ActivateButton;
+
     private Switch switchAction;
+    private RadioButton add, sub;
+
+    private TextView listaLogowLabel;
+    private Button wyswietlListeLogow;
+    private String fileName = "LogFile.txt";
+    private File logFile;
 
     private String[] cardStringSplited;
 
@@ -54,38 +70,101 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        init();
+        try {
+            init();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         context = this;
 
-        ActivateButton.setOnClickListener(v -> {
-            try {
-                if (myTag == null) {
-                    Toast.makeText(context, Error_Detected, Toast.LENGTH_LONG).show();
-                } else {
-//tutaj tego if ze switcha dać, zastanowić się czy by nie wziąć radiobuttona, bo ten switch to jakiś dziwny
-
-                    //wersja dla dodawania
-
-                    int newNumb = Integer.parseInt(cardStringSplited[1]) + Integer.parseInt(String.valueOf(amount.getText()));
-
-                    write(cardStringSplited[0] + ":" + newNumb, myTag);
-                    Toast.makeText(context, Write_Succes, Toast.LENGTH_LONG).show();
-                }
-            } catch (IOException | FormatException e) {
-                Toast.makeText(context, Write_Error, Toast.LENGTH_LONG).show();
-                e.printStackTrace();
-            }
-        });
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
         if (nfcAdapter == null) {
             Toast.makeText(this, "This device does not support NFC", Toast.LENGTH_SHORT).show();
             finish();
         }
+
         readfromIntent(getIntent());
-        pendingIntent = PendingIntent.getActivity(this, 0, new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
+        pendingIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, getClass()).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), 0);
         IntentFilter tagDetected = new IntentFilter(NfcAdapter.ACTION_TAG_DISCOVERED);
         tagDetected.addCategory(Intent.CATEGORY_DEFAULT);
         writingTagFilters = new IntentFilter[]{tagDetected};
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.getId() == R.id.ActivateButton) {
+            wykonajAkcjeNaKarcie();
+        }
+        if (v.getId() == R.id.logView) {
+            wyświetlListeLogow();
+        }
+    }
+
+    private void wykonajAkcjeNaKarcie() {
+        try {
+            if (myTag == null) {
+                Toast.makeText(context, Error_Detected, Toast.LENGTH_LONG).show();
+            } else {
+                //przy odejmowaniu trzeba uwzględnić możliwość wejscia na debet
+
+                int newNumb;
+
+                if (add.isChecked()) {
+                    newNumb = Integer.parseInt(cardStringSplited[1]) + Integer.parseInt(String.valueOf(amount.getText()));
+                    zapiszNowyLog(cardStringSplited[0] + ": dodano: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                } else if (sub.isChecked()) {
+                    newNumb = Integer.parseInt(cardStringSplited[1]) - Integer.parseInt(String.valueOf(amount.getText()));
+                    zapiszNowyLog(cardStringSplited[0] + ": odjęto: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                    // if (newNumb < 0) {
+                    //     Toast.makeText(this, "Odjąłem wiecej niż możesz, ustawiam na 0", Toast.LENGTH_SHORT).show();
+                    //     newNumb = 0;
+                    // }
+                } else {
+                    newNumb = Integer.parseInt(cardStringSplited[1]);
+                    zapiszNowyLog(cardStringSplited[0] + ": dodano: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                }
+
+                write(cardStringSplited[0] + ":" + newNumb, myTag);
+                Toast.makeText(context, Write_Succes, Toast.LENGTH_LONG).show();
+            }
+        } catch (IOException | FormatException e) {
+            Toast.makeText(context, Write_Error, Toast.LENGTH_LONG).show();
+            e.printStackTrace();
+        }
+    }
+
+    private void zapiszNowyLog(String string) throws IOException {
+        BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
+        out.write(string+"\n");
+        out.close();
+    }
+
+    private void wyświetlListeLogow() {
+        List<String> logsList;
+        logsList = getFromFileToList();
+        if (logsList.isEmpty()) {
+            Toast.makeText(this, "plik logów jest pusty", Toast.LENGTH_LONG).show();
+            return;
+        }
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String log : logsList) {
+            stringBuilder.append(log).append("\n");
+        }
+        listaLogowLabel.setText(stringBuilder);
+    }
+
+    private List<String> getFromFileToList() {
+        List<String> result = new ArrayList<>();
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                result.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
     private void readfromIntent(Intent intent) {
@@ -137,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
         ndef.close();
     }
 
-    private NdefRecord createRecord(String text) throws UnsupportedEncodingException {
+    private NdefRecord createRecord(String text) {
         String lang = "en";
         byte[] textBytes = text.getBytes();
         byte[] langBytes = lang.getBytes(StandardCharsets.US_ASCII);
@@ -187,11 +266,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void init() {
+    private void init() throws IOException {
         balance = findViewById(R.id.balance);
         nfc_content = findViewById(R.id.nfc_content);
         amount = findViewById(R.id.amount);
         ActivateButton = findViewById(R.id.ActivateButton);
         switchAction = findViewById(R.id.switch_action);
+        add = findViewById(R.id.add);
+        sub = findViewById(R.id.sub);
+        listaLogowLabel = findViewById(R.id.logList);
+        wyswietlListeLogow = findViewById(R.id.logView);
+
+        logFile = new File(fileName);
+        logFile.createNewFile();
     }
 }

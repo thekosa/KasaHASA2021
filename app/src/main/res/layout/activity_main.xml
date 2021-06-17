@@ -46,6 +46,32 @@
             android:text="Saldo" />
     </LinearLayout>
 
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/add"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:enabled="true"
+                android:text="dodaj" />
+
+            <RadioButton
+                android:id="@+id/sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="odejmij" />
+        </LinearLayout>
+    </RadioGroup>
+
     <Switch
         android:id="@+id/switch_action"
         style="@style/textViewStyle"
@@ -68,5 +94,23 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Zakoduj" />
+
+    <Button
+        android:id="@+id/logView"
+        style="@style/buttonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Wyświetl logi" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_margin="10dp">
+
+        <TextView
+            android:id="@+id/logList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+    </ScrollView>
 
 </LinearLayout>
