@@ -21,6 +21,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,7 +37,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
     public static final String Error_Detected = "Błąd aplikacji!";
     public static final String Write_Succes = "Zapis pomyślny";
@@ -52,8 +53,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView balance;
     private EditText amount;
 
-    private Switch switchAction;
     private RadioButton add, sub;
+    private RadioGroup radioGroup;
+    private boolean isRadioAddCheck = true;
 
     private TextView listaLogowLabel;
     private String fileName = "LogFile.txt";
@@ -61,6 +63,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private String[] cardStringSplited;
 
+    private Button acceptB, viewLogsB;
+
+    private final View.OnClickListener listener = v -> {
+        System.out.println("i co tu?___________________________________chuju złoty");
+
+        if (v.getId() == R.id.ActivateButton) {
+            System.out.println("1___________________________________chuju złoty");
+            wykonajAkcjeNaKarcie();
+            System.out.println("2___________________________________chuju złoty");
+        }
+        if (v.getId() == R.id.logView) {
+            System.out.println("2cokolwiek___________________________________chuju złoty");
+            wyswietlListeLogow();
+        }
+    };
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -89,19 +106,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         writingTagFilters = new IntentFilter[]{tagDetected};
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v.getId() == R.id.ActivateButton) {
-            wykonajAkcjeNaKarcie();
-        }
-        if (v.getId() == R.id.logView) {
-            wyswietlListeLogow();
-        }
-    }
+    /*
+      public void onClick(View v) {
+          System.out.println("i co tu?___________________________________chuju złoty");
 
+          if (v.getId() == R.id.ActivateButton) {
+              System.out.println("1___________________________________chuju złoty");
+              wykonajAkcjeNaKarcie();
+              System.out.println("2___________________________________chuju złoty");
+          }
+          if (v.getId() == R.id.logView) {
+
+              System.out.println("2cokolwiek___________________________________chuju złoty");
+              wyswietlListeLogow();
+          }
+      }
+  */
     private void wykonajAkcjeNaKarcie() {
         try {
             if (myTag == null) {
+                System.out.println("0000000___________________________________chuju złoty");
                 Toast.makeText(context, Error_Detected, Toast.LENGTH_LONG).show();
             } else {
                 //przy odejmowaniu trzeba uwzględnić możliwość wejscia na debet
@@ -109,24 +133,31 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 int newNumb;
 
                 if (add.isChecked()) {
+                    System.out.println("111___________________________________chuju złoty");
                     newNumb = Integer.parseInt(cardStringSplited[1]) + Integer.parseInt(String.valueOf(amount.getText()));
-                    zapiszNowyLog(cardStringSplited[0] + ": dodano: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                    // zapiszNowyLog(cardStringSplited[0] + ": dodano: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                    System.out.println("11___________________________________chuju złoty");
                 } else if (sub.isChecked()) {
+                    System.out.println("222___________________________________chuju złoty");
                     newNumb = Integer.parseInt(cardStringSplited[1]) - Integer.parseInt(String.valueOf(amount.getText()));
-                    zapiszNowyLog(cardStringSplited[0] + ": odjęto: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                    // zapiszNowyLog(cardStringSplited[0] + ": odjęto: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
                     // if (newNumb < 0) {
                     //     Toast.makeText(this, "Odjąłem wiecej niż możesz, ustawiam na 0", Toast.LENGTH_SHORT).show();
                     //     newNumb = 0;
                     // }
+                    System.out.println("22___________________________________chuju złoty");
                 } else {
+                    System.out.println("333___________________________________chuju złoty");
                     newNumb = Integer.parseInt(cardStringSplited[1]);
-                    zapiszNowyLog(cardStringSplited[0] + ": dodano: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                    //  zapiszNowyLog(cardStringSplited[0] + ": dodano: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                    System.out.println("33___________________________________chuju złoty");
                 }
 
                 write(cardStringSplited[0] + ":" + newNumb, myTag);
                 Toast.makeText(context, Write_Succes, Toast.LENGTH_LONG).show();
             }
         } catch (IOException | FormatException e) {
+            System.out.println("error chuje___________________________________chuju złoty");
             Toast.makeText(context, Write_Error, Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
@@ -134,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void zapiszNowyLog(String string) throws IOException {
         BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
-        out.write(string+"\n");
+        out.write(string + "\n");
         out.close();
     }
 
@@ -198,10 +229,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.e("UnsupportedEncoding", e.toString());
         }
 
-        cardStringSplited = text.split(":");
-
-        nfc_content.setText(text);
-        balance.setText(cardStringSplited[1]);
+        if (text.contains(":")) {
+            cardStringSplited = text.split(":");
+            nfc_content.setText(text);
+            balance.setText(cardStringSplited[1]);
+        } else {
+            Toast.makeText(this, "Złe dane na karcie", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void write(String text, Tag tag) throws IOException, FormatException {
@@ -268,10 +302,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         balance = findViewById(R.id.balance);
         nfc_content = findViewById(R.id.nfc_content);
         amount = findViewById(R.id.amount);
-        switchAction = findViewById(R.id.switch_action);
         add = findViewById(R.id.add);
         sub = findViewById(R.id.sub);
         listaLogowLabel = findViewById(R.id.logList);
+        radioGroup = findViewById(R.id.radioGroup);
+        viewLogsB = findViewById(R.id.logView);
+        acceptB = findViewById(R.id.ActivateButton);
+
+        viewLogsB.setOnClickListener(listener);
+        acceptB.setOnClickListener(listener);
 
         logFile = new File(fileName);
         logFile.createNewFile();
