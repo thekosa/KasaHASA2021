@@ -4,9 +4,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFC38E"
+    android:background="@drawable/zspaces"
     android:orientation="vertical"
     tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="205dp"
+        app:srcCompat="@drawable/logocbm"
+        android:layout_marginBottom="20dp"/>
+
+    <EditText
+        android:id="@+id/amount"
+        style="@style/textViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:ems="10"
+        android:hint="Kwota"
+        android:inputType="textPersonName"
+        android:textAlignment="center"
+        android:textColor="#E11616"
+        android:textSize="34sp"
+        android:textStyle="bold" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,14 +38,17 @@
             style="@style/textViewStyle"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:text="Dane:" />
+            android:text="Dane:"
+            android:textColor="#F58634" />
 
         <TextView
             android:id="@+id/nfc_content"
             style="@style/textViewStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Imie i nazwisko + Saldo" />
+            android:text="Imie i nazwisko"
+            android:textColor="#C3CCFF"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
@@ -36,14 +60,17 @@
             style="@style/textViewStyle"
             android:layout_width="70dp"
             android:layout_height="wrap_content"
-            android:text="Saldo:" />
+            android:text="Saldo:"
+            android:textColor="#F58634" />
 
         <TextView
             android:id="@+id/balance"
             style="@style/textViewStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Saldo" />
+            android:text="Saldo"
+            android:textColor="#C3CCFF"
+            android:textStyle="bold" />
     </LinearLayout>
 
     <LinearLayout
@@ -62,39 +89,41 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:checked="true"
-                android:text="dodaj" />
+                android:text="Dodaj"
+                android:textColor="#F58634"
+                android:textSize="16sp" />
 
             <RadioButton
                 android:id="@+id/sub"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="odejmij" />
+                android:text="Odejmij"
+                android:textColor="#F58634"
+                android:textSize="16sp" />
         </RadioGroup>
     </LinearLayout>
-
-    <EditText
-        android:id="@+id/amount"
-        style="@style/textViewStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPersonName"
-        android:text="Kwota" />
 
     <Button
         android:id="@+id/ActivateButton"
         style="@style/buttonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Zakoduj" />
+        android:text="Zakoduj"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#FFFFFF"
+        app:backgroundTint="#00245F"
+        app:iconTint="#FFFFFF" />
 
     <Button
         android:id="@+id/logView"
         style="@style/buttonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Wyświetl logi" />
+        android:text="Wyświetl logi"
+        android:textColor="#FFFFFF"
+        app:backgroundTint="#00245F"
+        app:iconTint="#FFFFFF" />
 
     <ScrollView
         android:layout_width="match_parent"
