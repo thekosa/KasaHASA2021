@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
                 write(cardStringSplited[0] + ":" + newNumb, myTag);
                 Toast.makeText(context, Write_Succes, Toast.LENGTH_LONG).show();
+               // balance.setText(newNumb);
             }
         } catch (IOException | FormatException e) {
             System.out.println("error chuje___________________________________chuju złoty");
@@ -231,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (text.contains(":")) {
             cardStringSplited = text.split(":");
-            nfc_content.setText(text);
+            nfc_content.setText(cardStringSplited[0]);
             balance.setText(cardStringSplited[1]);
         } else {
             Toast.makeText(this, "Złe dane na karcie", Toast.LENGTH_LONG).show();
