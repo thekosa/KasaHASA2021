@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -60,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView listaLogowLabel;
     private String fileName = "LogFile.txt";
     private File logFile;
+    private FileWriter zapis;
 
     private String[] cardStringSplited;
 
@@ -128,23 +130,21 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("0000000___________________________________chuju złoty");
                 Toast.makeText(context, Error_Detected, Toast.LENGTH_LONG).show();
             } else {
-                //przy odejmowaniu trzeba uwzględnić możliwość wejscia na debet
-
                 int newNumb;
 
                 if (add.isChecked()) {
                     System.out.println("111___________________________________chuju złoty");
                     newNumb = Integer.parseInt(cardStringSplited[1]) + Integer.parseInt(String.valueOf(amount.getText()));
-                    // zapiszNowyLog(cardStringSplited[0] + ": dodano: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                    zapiszNowyLog(cardStringSplited[0] + ": dodano: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
                     System.out.println("11___________________________________chuju złoty");
                 } else if (sub.isChecked()) {
                     System.out.println("222___________________________________chuju złoty");
                     newNumb = Integer.parseInt(cardStringSplited[1]) - Integer.parseInt(String.valueOf(amount.getText()));
+                    if (newNumb < 0) {
+                        Toast.makeText(this, "Masz za mało CPL!", Toast.LENGTH_SHORT).show();
+                        newNumb = Integer.parseInt(cardStringSplited[1]);
+                    }
                     // zapiszNowyLog(cardStringSplited[0] + ": odjęto: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
-                    // if (newNumb < 0) {
-                    //     Toast.makeText(this, "Odjąłem wiecej niż możesz, ustawiam na 0", Toast.LENGTH_SHORT).show();
-                    //     newNumb = 0;
-                    // }
                     System.out.println("22___________________________________chuju złoty");
                 } else {
                     System.out.println("333___________________________________chuju złoty");
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
                 write(cardStringSplited[0] + ":" + newNumb, myTag);
                 Toast.makeText(context, Write_Succes, Toast.LENGTH_LONG).show();
-               // balance.setText(newNumb);
+                // balance.setText(newNumb);
             }
         } catch (IOException | FormatException e) {
             System.out.println("error chuje___________________________________chuju złoty");
@@ -165,9 +165,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void zapiszNowyLog(String string) throws IOException {
-        BufferedWriter out = new BufferedWriter(new FileWriter(fileName));
-        out.write(string + "\n");
-        out.close();
+        // if (logFile.createNewFile()) {
+        //       zapis.println("Oto plik z logami");
+        //   }
+        try {
+            zapis.write(string + "\n");
+        } catch (IOException e) {
+            System.out.println("coś nie idzie z tymi plikami");
+            e.printStackTrace();
+        } finally {
+            zapis.close();
+        }
     }
 
     private void wyswietlListeLogow() {
@@ -314,6 +322,7 @@ public class MainActivity extends AppCompatActivity {
         acceptB.setOnClickListener(listener);
 
         logFile = new File(fileName);
-        logFile.createNewFile();
+        zapis = new FileWriter(fileName);
+
     }
 }
