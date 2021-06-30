@@ -68,11 +68,15 @@ public class MainActivity extends AppCompatActivity {
     private Button acceptB, viewLogsB;
 
     private final View.OnClickListener listener = v -> {
+        System.out.println("i co tu?___________________________________chuju złoty");
 
         if (v.getId() == R.id.ActivateButton) {
+            System.out.println("1___________________________________chuju złoty");
             wykonajAkcjeNaKarcie();
+            System.out.println("2___________________________________chuju złoty");
         }
         if (v.getId() == R.id.logView) {
+            System.out.println("2cokolwiek___________________________________chuju złoty");
             wyswietlListeLogow();
         }
     };
@@ -129,37 +133,43 @@ public class MainActivity extends AppCompatActivity {
                 int newNumb;
 
                 if (add.isChecked()) {
+                    System.out.println("111___________________________________chuju złoty");
                     newNumb = Integer.parseInt(cardStringSplited[1]) + Integer.parseInt(String.valueOf(amount.getText()));
-                    //zapiszNowyLog(cardStringSplited[0] + ": dodano: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                    zapiszNowyLog(cardStringSplited[0] + ": dodano: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                    System.out.println("11___________________________________chuju złoty");
                 } else if (sub.isChecked()) {
+                    System.out.println("222___________________________________chuju złoty");
                     newNumb = Integer.parseInt(cardStringSplited[1]) - Integer.parseInt(String.valueOf(amount.getText()));
                     if (newNumb < 0) {
                         Toast.makeText(this, "Masz za mało CPL!", Toast.LENGTH_SHORT).show();
                         newNumb = Integer.parseInt(cardStringSplited[1]);
                     }
                     // zapiszNowyLog(cardStringSplited[0] + ": odjęto: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                    System.out.println("22___________________________________chuju złoty");
                 } else {
+                    System.out.println("333___________________________________chuju złoty");
                     newNumb = Integer.parseInt(cardStringSplited[1]);
                     //  zapiszNowyLog(cardStringSplited[0] + ": dodano: " + amount + "było: " + cardStringSplited[1] + "po operacji: " + newNumb);
+                    System.out.println("33___________________________________chuju złoty");
                 }
 
-                writenfc(cardStringSplited[0] + ":" + newNumb, myTag);
+                write(cardStringSplited[0] + ":" + newNumb, myTag);
                 Toast.makeText(context, Write_Succes, Toast.LENGTH_LONG).show();
-                balance.setText(Integer.toString(newNumb));
+                // balance.setText(newNumb);
             }
         } catch (IOException | FormatException e) {
+            System.out.println("error chuje___________________________________chuju złoty");
             Toast.makeText(context, Write_Error, Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
     }
-/*
+
     private void zapiszNowyLog(String string) throws IOException {
         // if (logFile.createNewFile()) {
         //       zapis.println("Oto plik z logami");
         //   }
         try {
-            System.out.println("zaczyna");
-            zapis.write(string);
+            zapis.write(string + "\n");
         } catch (IOException e) {
             System.out.println("coś nie idzie z tymi plikami");
             e.printStackTrace();
@@ -167,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
             zapis.close();
         }
     }
-*/
+
     private void wyswietlListeLogow() {
         List<String> logsList;
         logsList = getFromFileToList();
@@ -237,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void writenfc(String text, Tag tag) throws IOException, FormatException {
+    private void write(String text, Tag tag) throws IOException, FormatException {
         NdefRecord[] records = {createRecord(text)};
         NdefMessage message = new NdefMessage(records);
 
